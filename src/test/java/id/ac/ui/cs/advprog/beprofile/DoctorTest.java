@@ -1,5 +1,6 @@
-package com.example.doctorprofile.model;
+package id.ac.ui.cs.advprog.beprofile;
 
+import id.ac.ui.cs.advprog.beprofile.model.Doctor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
