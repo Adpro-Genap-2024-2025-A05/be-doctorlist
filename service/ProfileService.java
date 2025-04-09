@@ -23,6 +23,5 @@ public class ProfileService {
     public void deleteAccount(String userId) {
         userRepo.deleteById(userId);
         profileRepo.deleteByUserId(userId);
-        // Notifikasi dan log audit bisa ditambahkan di sini
     }
 }
