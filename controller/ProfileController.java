@@ -1,0 +1,46 @@
+@RestController
+@RequestMapping("/user/profile")
+public class ProfileController {
+
+    private final ProfileService profileService;
+    private final SecurityService securityService;
+
+    public ProfileController(ProfileService profileService, SecurityService securityService) {
+        this.profileService = profileService;
+        this.securityService = securityService;
+    }
+
+    @GetMapping
+    public ResponseEntity<Profile> getProfile(@RequestHeader("Authorization") String token,
+                                              @RequestParam String userId) {
+        if (!securityService.authenticate(token) || !securityService.authorize(userId, extractUserId(token))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(profileService.getProfile(userId));
+    }
+
+    @PutMapping
+    public ResponseEntity<Profile> updateProfile(@RequestHeader("Authorization") String token,
+                                                 @RequestParam String userId,
+                                                 @RequestBody Profile profile) {
+        if (!securityService.authenticate(token) || !securityService.authorize(userId, extractUserId(token))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(profileService.updateProfile(userId, profile));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAccount(@RequestHeader("Authorization") String token,
+                                              @RequestParam String userId) {
+        if (!securityService.authenticate(token) || !securityService.authorize(userId, extractUserId(token))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        profileService.deleteAccount(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    private String extractUserId(String token) {
+        // dari token ke userId
+        return "mockUserId"; // simulasi
+    }
+}
