@@ -1,3 +1,11 @@
+package id.ac.ui.cs.advprog.beprofile.controller;
+
+import id.ac.ui.cs.advprog.beprofile.model.Profile;
+import id.ac.ui.cs.advprog.beprofile.security.SecurityService;
+import id.ac.ui.cs.advprog.beprofile.service.ProfileService;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequestMapping("/user/profile")
 public class ProfileController {
@@ -40,7 +48,6 @@ public class ProfileController {
     }
 
     private String extractUserId(String token) {
-        // dari token ke userId
-        return "mockUserId"; // simulasi
+        return "mockUserId"; // Dummy, nanti ganti dengan decode dari JWT
     }
 }

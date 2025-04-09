@@ -1,5 +1,10 @@
-public class ProfileService {
+package id.ac.ui.cs.advprog.beprofile.service;
 
+import id.ac.ui.cs.advprog.beprofile.model.Profile;
+import id.ac.ui.cs.advprog.beprofile.repository.ProfileRepository;
+import id.ac.ui.cs.advprog.beprofile.repository.UserRepository;
+
+public class ProfileService {
     private final UserRepository userRepo;
     private final ProfileRepository profileRepo;
 
@@ -12,11 +17,11 @@ public class ProfileService {
         return profileRepo.findByUserId(userId).orElseThrow();
     }
 
-    public Profile updateProfile(String userId, Profile updatedProfile) {
+    public Profile updateProfile(String userId, Profile updated) {
         Profile existing = profileRepo.findByUserId(userId).orElseThrow();
-        existing.setPhoneNumber(updatedProfile.getPhoneNumber());
-        existing.setAddress(updatedProfile.getAddress());
-        existing.setDateOfBirth(updatedProfile.getDateOfBirth());
+        existing.setPhoneNumber(updated.getPhoneNumber());
+        existing.setAddress(updated.getAddress());
+        existing.setDateOfBirth(updated.getDateOfBirth());
         return profileRepo.save(existing);
     }
 
