@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.beprofile.service;
 
-import com.example.doctorprofile.model.Doctor;
+import id.ac.ui.cs.advprog.beprofile.model.Doctor;
+import id.ac.ui.cs.advprog.beprofile.services.DoctorSearchService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;
