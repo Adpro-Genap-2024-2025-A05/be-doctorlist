@@ -8,9 +8,11 @@ services:
     depends_on:
       - postgres
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/profile_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=profile_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     restart: always
 
