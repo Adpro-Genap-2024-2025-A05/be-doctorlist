@@ -16,6 +16,7 @@ public class ProfileService {
     public Profile getProfile(String userId) {
         return profileRepo.findByUserId(userId).orElseThrow();
     }
+    
 
     public Profile updateProfile(String userId, Profile updated) {
         Profile existing = profileRepo.findByUserId(userId).orElseThrow();
