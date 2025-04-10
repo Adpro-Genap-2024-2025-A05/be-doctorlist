@@ -65,57 +65,74 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Create the target directory if it doesn't exist
-            mkdir -p ${{ secrets.TARGET_DIR }}
+            # Navigate to home directory
+            cd ~
             
-            # Clone the repository
-            cd ${{ secrets.TARGET_DIR }}
-            if [ -d ".git" ]; then
+            # Check if the repo exists, if so pull latest changes, otherwise clone
+            if [ -d "be-profile" ]; then
+              cd be-profile
+              git fetch
+              git checkout ${{ github.ref_name }}
               git pull
             else
-              git clone https://github.com/${{ github.repository }}.git .
+              git clone -b ${{ github.ref_name }} https://github.com/${{ github.repository }}.git be-profile
+              cd be-profile
             fi
             
             # Install Docker if not already installed
             if ! [ -x "$(command -v docker)" ]; then
               echo 'Installing Docker...'
               sudo apt-get update
-              sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+              sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
             
-              # Add Docker's official GPG key
               curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
             
-              # Set up the Docker repository
               echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
             
               sudo apt-get update
               sudo apt-get install -y docker-ce docker-ce-cli containerd.io
             fi
             
-            # Check if docker-compose exists, if not use docker compose plugin
-            if ! [ -x "$(command -v docker-compose)" ]; then
-              echo 'Using Docker Compose plugin...'
+            # Check if docker compose is available (either as plugin or standalone)
+            if docker compose version > /dev/null 2>&1; then
+              # Docker Compose plugin is available
+              echo "Using Docker Compose plugin"
             
-              # Check if docker compose plugin is installed
-              if ! docker compose version > /dev/null 2>&1; then
-                echo 'Installing Docker Compose plugin...'
-                sudo apt-get update
-                sudo apt-get install -y docker-compose-plugin
-              fi
-            
-              # Build and start containers with plugin syntax
+              # Stop and remove containers if they exist
               sudo docker compose down || true
+            
+              # Build and start containers
               sudo docker compose build --no-cache
               sudo docker compose up -d
             
-              # Show logs to verify deployment
-              sudo docker compose logs
-            else
-              # Build and start containers with traditional syntax
+              # Show running containers
+              sudo docker compose ps
+            elif [ -x "$(command -v docker-compose)" ]; then
+              # Docker Compose standalone is available
+              echo "Using Docker Compose standalone"
+            
+              # Stop and remove containers if they exist
               sudo docker-compose down || true
+            
+              # Build and start containers
               sudo docker-compose build --no-cache
               sudo docker-compose up -d
             
-              # Show logs to verify deployment
-              sudo docker-compose logs
+              # Show running containers
+              sudo docker-compose ps
+            else
+              # Install Docker Compose
+              echo "Installing Docker Compose..."
+              sudo apt-get update
+              sudo apt-get install -y docker-compose-plugin
+            
+              # Stop and remove containers if they exist
+              sudo docker compose down || true
+            
+              # Build and start containers
+              sudo docker compose build --no-cache
+              sudo docker compose up -d
+            
+              # Show running containers
+              sudo docker compose ps
             fi
