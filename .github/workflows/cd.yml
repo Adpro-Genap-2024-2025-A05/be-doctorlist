@@ -1,0 +1,64 @@
+name: Continuous Deployment (CD)
+
+on:
+  workflow_run:
+    workflows: ["Continuous Integration (CI)"]
+    branches: [main, dev]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout the files
+        uses: actions/checkout@v2
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_DNS }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Create the target directory if it doesn't exist
+            mkdir -p ${{ secrets.TARGET_DIR }}
+            
+            # Clone the repository into a temporary directory
+            rm -rf /tmp/deploy-temp
+            git clone https://github.com/${{ github.repository }}.git /tmp/deploy-temp
+            
+            # Copy the files to the target directory
+            cp -R /tmp/deploy-temp/* ${{ secrets.TARGET_DIR }}
+            
+            # Navigate to project directory
+            cd ${{ secrets.TARGET_DIR }}
+            
+            # Install Docker if not already installed
+            if ! [ -x "$(command -v docker)" ]; then
+              echo 'Installing Docker...'
+              sudo apt-get update
+              sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+              sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+              sudo apt-get update
+              sudo apt-get install -y docker-ce
+            fi
+            
+            # Install Docker Compose if not already installed
+            if ! [ -x "$(command -v docker-compose)" ]; then
+              echo 'Installing Docker Compose...'
+              sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            
+            # Build and start containers
+            sudo docker-compose down
+            sudo docker-compose build --no-cache
+            sudo docker-compose up -d
+            
+            # Show logs to verify deployment
+            sudo docker-compose logs
