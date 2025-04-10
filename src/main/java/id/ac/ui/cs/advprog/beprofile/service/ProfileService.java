@@ -14,9 +14,9 @@ public class ProfileService {
     }
 
     public Profile getProfile(String userId) {
-        return profileRepo.findByUserId(userId).orElseThrow();
+        return profileRepo.findByUserId(userId)
+            .orElseThrow(() -> new IllegalArgumentException("Profile not found for userId: " + userId));
     }
-    
 
     public Profile updateProfile(String userId, Profile updated) {
         Profile existing = profileRepo.findByUserId(userId).orElseThrow();
