@@ -99,7 +99,7 @@ jobs:
               echo "Using Docker Compose plugin"
             
               # Stop and remove containers if they exist
-              sudo docker compose down || true
+              sudo docker compose down
             
               # Build and start containers
               sudo docker compose build
@@ -112,7 +112,7 @@ jobs:
               echo "Using Docker Compose standalone"
             
               # Stop and remove containers if they exist
-              sudo docker-compose down || true
+              sudo docker-compose down
             
               # Build and start containers
               sudo docker-compose build
@@ -127,7 +127,7 @@ jobs:
               sudo apt-get install -y docker-compose-plugin
             
               # Stop and remove containers if they exist
-              sudo docker compose down || true
+              sudo docker compose down
             
               # Build and start containers
               sudo docker compose build
