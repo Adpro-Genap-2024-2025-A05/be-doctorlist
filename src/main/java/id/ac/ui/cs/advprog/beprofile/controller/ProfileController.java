@@ -21,15 +21,11 @@ public class ProfileController {
     @GetMapping
     public ResponseEntity<Profile> getProfile(@RequestHeader("Authorization") String token,
                                               @RequestParam String userId) {
-        if (!securityService.authenticate(token) || !securityService.authorize(userId, extractUserId(token))) {
+        if (!isAuthorized(token, userId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // Mock the Profile data for GREEN stage
-        Profile profile = new Profile();
-        profile.setUserId("user123");
-        profile.setPhoneNumber("081234567890");
-
+        Profile profile = profileService.getProfile(userId);
         return ResponseEntity.ok(profile);
     }
 
@@ -37,7 +33,7 @@ public class ProfileController {
     public ResponseEntity<Profile> updateProfile(@RequestHeader("Authorization") String token,
                                                  @RequestParam String userId,
                                                  @RequestBody Profile profile) {
-        if (!securityService.authenticate(token) || !securityService.authorize(userId, extractUserId(token))) {
+        if (!isAuthorized(token, userId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.ok(profileService.updateProfile(userId, profile));
@@ -46,11 +42,15 @@ public class ProfileController {
     @DeleteMapping
     public ResponseEntity<Void> deleteAccount(@RequestHeader("Authorization") String token,
                                               @RequestParam String userId) {
-        if (!securityService.authenticate(token) || !securityService.authorize(userId, extractUserId(token))) {
+        if (!isAuthorized(token, userId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         profileService.deleteAccount(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    private boolean isAuthorized(String token, String userId) {
+        return securityService.authenticate(token) && securityService.authorize(userId, extractUserId(token));
     }
 
     private String extractUserId(String token) {
