@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  be-profile:
+    image: be-profile:latest
+    container_name: be-profile
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./logs:/opt/be-profile/logs
