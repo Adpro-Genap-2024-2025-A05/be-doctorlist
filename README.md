@@ -51,6 +51,3 @@ Mengabstraksi akses ke data dan memisahkan logika penyimpanan data dari logika b
 Memungkinkan implementasi strategi otentikasi dan otorisasi yang berbeda tanpa mengubah kode klien.
 
 - Contoh: `SecurityServiceImpl` mengimplementasikan strategi otentikasi token dan otorisasi pengguna.
-
-## Deployment
-Aplikasi ini dapat diakses melalui tautan berikut: [BE-ProfileDeployment](https://gay-maurizia-be-profile-94f7c399.koyeb.app)
