@@ -1,8 +1,6 @@
 package id.ac.ui.cs.advprog.beprofile.services.strategy;
 
-
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +12,7 @@ public class SearchByNameStrategy implements SearchStrategy {
         if (criteria == null || criteria.trim().isEmpty()) {
             return results;
         }
-        // Case-insensitive search.
+
         String lowerCriteria = criteria.toLowerCase();
         for (Doctor doctor : doctors) {
             if (doctor.getName() != null && doctor.getName().toLowerCase().contains(lowerCriteria)) {
