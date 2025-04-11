@@ -1,11 +1,9 @@
-package id.ac.ui.cs.advprog.beprofile.services;
+package id.ac.ui.cs.advprog.beprofile.service;
 
-
-import id.ac.ui.cs.advprog.beprofile.services.strategy.SearchByNameStrategy;
-import id.ac.ui.cs.advprog.beprofile.services.strategy.SearchStrategy;
-import org.springframework.stereotype.Service;
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
-
+import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchByNameStrategy;
+import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchStrategy;
+import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +11,7 @@ import java.util.Map;
 
 @Service
 public class DoctorSearchService {
+
     private final List<Doctor> doctors = new ArrayList<>();
 
     private final Map<String, SearchStrategy> strategies;

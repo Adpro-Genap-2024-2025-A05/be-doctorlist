@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.beprofile.services.strategy;
+package id.ac.ui.cs.advprog.beprofile.service.strategy;
 
 
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
