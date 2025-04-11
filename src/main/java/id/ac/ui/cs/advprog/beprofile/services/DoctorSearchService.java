@@ -35,4 +35,11 @@ public class DoctorSearchService {
         }
         return strategy.search(doctors, criteria);
     }
+
+    public Doctor getDoctorById(String id) {
+        return doctors.stream()
+                .filter(doctor -> doctor.getId() != null && doctor.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
 }

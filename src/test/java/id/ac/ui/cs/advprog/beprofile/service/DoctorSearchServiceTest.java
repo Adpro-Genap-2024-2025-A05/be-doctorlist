@@ -41,4 +41,16 @@ class DoctorSearchServiceTest {
         String expectedMessage = "Search type unsupported-type is not supported.";
         assertTrue(exception.getMessage().contains(expectedMessage));
     }
+    @Test
+    void testGetDoctorByIdFound() {
+        Doctor foundDoctor = service.getDoctorById("doctor-123");
+        assertNotNull(foundDoctor, "Doctor should be found");
+        assertEquals("Dr. Bambang", foundDoctor.getName(), "Doctor name should match");
+    }
+
+    @Test
+    void testGetDoctorByIdNotFound() {
+        Doctor notFound = service.getDoctorById("unknown-id");
+        assertNull(notFound, "Doctor should be null if not found");
+    }
 }
