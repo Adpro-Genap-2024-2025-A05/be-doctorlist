@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.beprofile.controller;
 
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
-import id.ac.ui.cs.advprog.beprofile.services.DoctorSearchService;
+import id.ac.ui.cs.advprog.beprofile.service.DoctorSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
