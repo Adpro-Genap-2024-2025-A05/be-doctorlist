@@ -1,6 +1,5 @@
 package id.ac.ui.cs.advprog.beprofile;
 
-import id.ac.ui.cs.advprog.beprofile.service.ProfileService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
