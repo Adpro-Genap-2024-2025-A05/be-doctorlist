@@ -3,7 +3,9 @@ package id.ac.ui.cs.advprog.beprofile.service;
 import id.ac.ui.cs.advprog.beprofile.model.Profile;
 import id.ac.ui.cs.advprog.beprofile.repository.ProfileRepository;
 import id.ac.ui.cs.advprog.beprofile.repository.UserRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ProfileService {
     private final UserRepository userRepo;
     private final ProfileRepository profileRepo;
