@@ -1,7 +1,8 @@
-package id.ac.ui.cs.advprog.beprofile.service;
+package id.ac.ui.cs.advprog.beprofile.service.impl;
 
 import id.ac.ui.cs.advprog.beprofile.model.ConsultationHistory;
 import id.ac.ui.cs.advprog.beprofile.repository.ConsultationHistoryRepository;
+import id.ac.ui.cs.advprog.beprofile.service.ConsultationHistoryService; // Pastikan import ini ada
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
