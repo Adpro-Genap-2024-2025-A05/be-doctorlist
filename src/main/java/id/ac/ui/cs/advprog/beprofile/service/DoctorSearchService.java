@@ -27,6 +27,11 @@ public class DoctorSearchService {
         }
     }
 
+    public void clearDoctors() {
+        // Membersihkan daftar dokter
+        doctors.clear();
+    }
+
     public List<Doctor> search(String criteria, String type) {
         SearchStrategy strategy = strategies.get(type);
         if (strategy == null) {

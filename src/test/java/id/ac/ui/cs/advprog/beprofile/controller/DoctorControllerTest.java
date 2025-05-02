@@ -35,6 +35,9 @@ public class DoctorControllerTest {
 
     @BeforeEach
     void setUp() {
+        // Bersihkan daftar dokter sebelum setiap pengujian
+        doctorSearchService.clearDoctors();
+
         // Tambahkan data dokter ke layanan
         Doctor doctor = new Doctor();
         doctor.setId("doctor-123");
