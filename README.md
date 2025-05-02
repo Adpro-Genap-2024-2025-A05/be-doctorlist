@@ -51,3 +51,39 @@ Branch ini berisi implementasi fitur terkait pengelolaan profil pengguna dalam a
   Memungkinkan implementasi strategi otentikasi dan otorisasi yang berbeda tanpa mengubah kode klien.
 
 - Contoh: `SecurityServiceImpl` mengimplementasikan strategi otentikasi token dan otorisasi pengguna.
+
+
+
+
+
+# Doctor Search Feature  
+Branch: `FilterNListDoctor`  
+Created by: Figo Favian Ragazo (2306241764)  
+
+### Deskripsi  
+Fitur ini menyediakan kemampuan bagi Pacillians untuk:  
+- Mencari dokter berdasarkan **nama**, **spesialisasi**, dan **jadwal kerja**.  
+- Melihat **detail profil dokter** seperti:  
+  - Nama  
+  - Alamat praktik  
+  - Jadwal kerja  
+  - Email  
+  - Nomor telepon  
+  - Rating  
+
+### Design Pattern yang Digunakan
+
+#### 1. **Strategy Pattern**  
+- **Lokasi Implementasi**: `service/strategy/`  
+- **Penjelasan**:  
+  - Setiap strategi pencarian diimplementasikan dalam kelas yang berbeda, misalnya:  
+    - `SearchByNameStrategy`  
+    - Kelas strategi lain dapat ditambahkan tanpa mengubah `DoctorSearchService`  
+  - Strategi-strategi ini dikelola melalui sebuah `Map<String, SearchStrategy>` di `DoctorSearchService`.  
+
+#### 2. **Repository Pattern**  
+- **Lokasi Implementasi**: `InMemoryDoctorRepository`  
+
+#### 3. **Service Layer Pattern**  
+- **Lokasi Implementasi**: `DoctorSearchService`   
+
