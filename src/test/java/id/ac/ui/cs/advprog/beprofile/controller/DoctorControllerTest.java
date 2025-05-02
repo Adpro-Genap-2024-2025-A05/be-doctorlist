@@ -1,15 +1,23 @@
 package id.ac.ui.cs.advprog.beprofile.controller;
 
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
+import id.ac.ui.cs.advprog.beprofile.repository.DoctorRepository;
+import id.ac.ui.cs.advprog.beprofile.repository.InMemoryDoctorRepository;
 import id.ac.ui.cs.advprog.beprofile.service.DoctorSearchService;
+import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchByNameStrategy;
+import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -28,27 +36,44 @@ public class DoctorControllerTest {
     @TestConfiguration
     static class TestConfig {
         @Bean
-        public DoctorSearchService doctorSearchService() {
-            return new DoctorSearchService();
+        @Primary
+        public DoctorRepository doctorRepository() {
+            return new InMemoryDoctorRepository();
+        }
+
+        @Bean
+        public SearchStrategy searchByNameStrategy() {
+            return new SearchByNameStrategy();
+        }
+
+        @Bean
+        public Map<String, SearchStrategy> strategies(SearchStrategy searchByNameStrategy) {
+            Map<String, SearchStrategy> m = new HashMap<>();
+            m.put("name", searchByNameStrategy);
+            return m;
+        }
+
+        @Bean
+        public DoctorSearchService doctorSearchService(
+                DoctorRepository repo,
+                Map<String, SearchStrategy> strategies
+        ) {
+            return new DoctorSearchService(repo, strategies);
         }
     }
 
     @BeforeEach
     void setUp() {
-        // Bersihkan daftar dokter sebelum setiap pengujian
         doctorSearchService.clearDoctors();
-
-        // Tambahkan data dokter ke layanan
-        Doctor doctor = new Doctor();
-        doctor.setId("doctor-123");
-        doctor.setName("Dr. Bambang");
-        doctor.setPracticeAddress("Jalan Bekasi Raya");
-        doctor.setWorkSchedule("Mon-Fri 09:00-17:00");
-        doctor.setEmail("dr.bambang@example.com");
-        doctor.setPhoneNumber("081234567890");
-        doctor.setRating(4.5);
-
-        doctorSearchService.addDoctor(doctor);
+        Doctor d = new Doctor();
+        d.setId("doctor-123");
+        d.setName("Dr. Bambang");
+        d.setPracticeAddress("Jalan Bekasi Raya");
+        d.setWorkSchedule("Mon-Fri 09:00-17:00");
+        d.setEmail("dr.bambang@example.com");
+        d.setPhoneNumber("081234567890");
+        d.setRating(4.5);
+        doctorSearchService.addDoctor(d);
     }
 
     @Test
