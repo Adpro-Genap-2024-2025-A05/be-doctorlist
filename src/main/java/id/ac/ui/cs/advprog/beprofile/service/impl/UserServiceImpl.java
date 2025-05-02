@@ -24,7 +24,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
         existingUser.setFullname(updatedUser.getFullname());
         existingUser.setEmail(updatedUser.getEmail());
-        existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
         return userRepository.save(existingUser);
     }
 
