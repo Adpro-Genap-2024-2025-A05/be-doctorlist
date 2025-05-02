@@ -44,7 +44,7 @@ class UserControllerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        // Tambahkan data pengguna ke repository
+        // Mock data pengguna
         User mockUser = new User();
         mockUser.setId("user123");
         mockUser.setFullname("John Doe");

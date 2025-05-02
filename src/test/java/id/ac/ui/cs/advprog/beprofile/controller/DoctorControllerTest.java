@@ -6,11 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -23,17 +22,20 @@ public class DoctorControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
     private DoctorSearchService doctorSearchService;
 
-    private List<Doctor> doctors;
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public DoctorSearchService doctorSearchService() {
+            return new DoctorSearchService();
+        }
+    }
 
     @BeforeEach
     void setUp() {
-        // Inisialisasi DoctorSearchService
-        doctorSearchService = new DoctorSearchService();
-
-        // Tambahkan data dokter ke dalam layanan
-        doctors = new ArrayList<>();
+        // Tambahkan data dokter ke layanan
         Doctor doctor = new Doctor();
         doctor.setId("doctor-123");
         doctor.setName("Dr. Bambang");
@@ -42,7 +44,6 @@ public class DoctorControllerTest {
         doctor.setEmail("dr.bambang@example.com");
         doctor.setPhoneNumber("081234567890");
         doctor.setRating(4.5);
-        doctors.add(doctor);
 
         doctorSearchService.addDoctor(doctor);
     }
