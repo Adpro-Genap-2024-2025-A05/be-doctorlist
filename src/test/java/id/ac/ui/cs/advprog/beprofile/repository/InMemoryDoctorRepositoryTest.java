@@ -93,4 +93,22 @@ public class InMemoryDoctorRepositoryTest {
         Doctor deleted = doctorRepository.delete("non-existent-id");
         assertNull(deleted);
     }
+
+    @Test
+    void testClearWipesOutAllDoctors() {
+        doctorRepository.create(doctor);
+        Doctor doctor2 = new Doctor();
+        doctor2.setId("doctor-456");
+        doctor2.setName("Dr. Siti");
+        doctorRepository.create(doctor2);
+
+        assertTrue(doctorRepository.findAll().hasNext());
+
+        ((InMemoryDoctorRepository)doctorRepository).clear();
+
+        Iterator<Doctor> afterClear = doctorRepository.findAll();
+        assertFalse(afterClear.hasNext(), "clear() should remove all entries");
+        assertNull(doctorRepository.findById("doctor-123"));
+        assertNull(doctorRepository.findById("doctor-456"));
+    }
 }
