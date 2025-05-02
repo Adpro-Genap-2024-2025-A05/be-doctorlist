@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.beprofile.security;
 
-import id.ac.ui.cs.advprog.beprofile.model.User;
 import id.ac.ui.cs.advprog.beprofile.model.Role;
+import id.ac.ui.cs.advprog.beprofile.model.User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -9,24 +9,31 @@ public class SecurityServiceImpl implements SecurityService {
 
     @Override
     public boolean authenticate(String token) {
-        // Dummy check: token tidak null dan ada awalan Bearer
         return token != null && token.startsWith("Bearer ");
     }
 
     @Override
     public boolean authorize(String resourceUserId, String tokenUserId) {
-        // Dummy check: hanya boleh akses data sendiri
-        return resourceUserId.equals(tokenUserId);
+        User user = getUserFromToken("Bearer " + tokenUserId); // Dummy decoding
+        Role role = user.getRole();
+
+        // Strategi otorisasi berdasarkan peran
+        if (role == Role.PACILLIANS) {
+            return resourceUserId.equals(tokenUserId); // Pacillian hanya dapat mengakses data mereka sendiri
+        } else if (role == Role.CAREGIVER) {
+            return resourceUserId.equals(tokenUserId); // Dokter hanya dapat mengakses data mereka sendiri
+        }
+
+        throw new IllegalArgumentException("Unsupported role: " + role);
     }
 
     @Override
     public User getUserFromToken(String token) {
-        // Dummy decode token jadi user
         User user = new User();
         user.setId("mockUserId");
         user.setEmail("mock@example.com");
         user.setFullname("Mock User");
-        user.setRole(Role.CAREGIVER); // atau PACILLIANS
+        user.setRole(Role.PACILLIANS); // Default role for testing
         return user;
     }
 }
