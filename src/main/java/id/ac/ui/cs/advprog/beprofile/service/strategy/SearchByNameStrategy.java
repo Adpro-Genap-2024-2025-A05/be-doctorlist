@@ -1,24 +1,21 @@
 package id.ac.ui.cs.advprog.beprofile.service.strategy;
 
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
-import java.util.ArrayList;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SearchByNameStrategy implements SearchStrategy {
-
     @Override
     public List<Doctor> search(List<Doctor> doctors, String criteria) {
-        List<Doctor> results = new ArrayList<>();
-        if (criteria == null || criteria.trim().isEmpty()) {
-            return results;
+        if (criteria == null || criteria.isEmpty()) {
+            return doctors;
         }
-
-        String lowerCriteria = criteria.toLowerCase();
-        for (Doctor doctor : doctors) {
-            if (doctor.getName() != null && doctor.getName().toLowerCase().contains(lowerCriteria)) {
-                results.add(doctor);
-            }
-        }
-        return results;
+        
+        String lowerCaseCriteria = criteria.toLowerCase();
+        return doctors.stream()
+                .filter(doctor -> doctor.getName() != null && 
+                        doctor.getName().toLowerCase().contains(lowerCaseCriteria))
+                .collect(Collectors.toList());
     }
 }
