@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.beprofile.model.Doctor;
 import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchByNameStrategy;
 import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchStrategy;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,6 @@ public class DoctorSearchService {
     }
 
     public void clearDoctors() {
-        // Membersihkan daftar dokter
         doctors.clear();
     }
 
