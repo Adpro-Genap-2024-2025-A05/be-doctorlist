@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -18,7 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(DoctorController.class)
 public class DoctorControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -35,10 +35,7 @@ public class DoctorControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Bersihkan daftar dokter sebelum setiap pengujian
         doctorSearchService.clearDoctors();
-
-        // Tambahkan data dokter ke layanan
         Doctor doctor = new Doctor();
         doctor.setId("doctor-123");
         doctor.setName("Dr. Bambang");
@@ -47,27 +44,30 @@ public class DoctorControllerTest {
         doctor.setEmail("dr.bambang@example.com");
         doctor.setPhoneNumber("081234567890");
         doctor.setRating(4.5);
-
         doctorSearchService.addDoctor(doctor);
     }
 
     @Test
-    void testGetDoctorsByName() throws Exception {
-        mockMvc.perform(get("/api/doctors")
-                        .param("searchType", "name")
-                        .param("criteria", "Bambang")
-                        .contentType(MediaType.APPLICATION_JSON))
+    @WithMockUser(username = "testuser", roles = {"USER"})
+    void testGetDoctorById() throws Exception {
+        mockMvc.perform(get("/doctors/doctor-123")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name", is("Dr. Bambang")));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name", is("Dr. Bambang")))
+                .andExpect(jsonPath("$.email", is("dr.bambang@example.com")));
     }
 
     @Test
-    void testGetDoctorById() throws Exception {
-        mockMvc.perform(get("/api/doctors/doctor-123")
-                        .contentType(MediaType.APPLICATION_JSON))
+    @WithMockUser(username = "testuser", roles = {"USER"})
+    void testGetDoctorsByName() throws Exception {
+        mockMvc.perform(get("/doctors")
+                .param("searchType", "name")
+                .param("criteria", "Bambang")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is("Dr. Bambang")))
-                .andExpect(jsonPath("$.email", is("dr.bambang@example.com")));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", is("Dr. Bambang")));
     }
 }
