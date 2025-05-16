@@ -1,10 +1,17 @@
 package id.ac.ui.cs.advprog.beprofile.service;
 
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
-import id.ac.ui.cs.advprog.beprofile.service.DoctorSearchService;
+import id.ac.ui.cs.advprog.beprofile.repository.InMemoryDoctorRepository;
+import id.ac.ui.cs.advprog.beprofile.repository.DoctorRepository;
+import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchByNameStrategy;
+import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class DoctorSearchServiceTest {
@@ -13,7 +20,12 @@ class DoctorSearchServiceTest {
 
     @BeforeEach
     void setup() {
-        service = new DoctorSearchService();
+        DoctorRepository repo = new InMemoryDoctorRepository();
+        Map<String, SearchStrategy> strategies = new HashMap<>();
+        strategies.put("name", new SearchByNameStrategy());
+
+        service = new DoctorSearchService(repo, strategies);
+
         Doctor doctor = new Doctor();
         doctor.setId("doctor-123");
         doctor.setName("Dr. Bambang");
@@ -28,30 +40,27 @@ class DoctorSearchServiceTest {
     @Test
     void testSearchByName() {
         List<Doctor> result = service.search("Bambang", "name");
-        assertNotNull(result, "The search result should not be null");
-        assertEquals(1, result.size(), "Search by name should return one doctor");
-        assertEquals("Dr. Bambang", result.get(0).getName(), "Doctor's name should be 'Dr. Bambang'");
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Dr. Bambang", result.get(0).getName());
     }
 
     @Test
     void testSearchWithUnsupportedType() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                service.search("Bambang", "unsupported-type")
-        );
-        String expectedMessage = "Search type unsupported-type is not supported.";
-        assertTrue(exception.getMessage().contains(expectedMessage));
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
+                service.search("Bambang", "unsupported"));
+        assertTrue(ex.getMessage().contains("unsupported"));
     }
 
     @Test
     void testGetDoctorByIdFound() {
-        Doctor foundDoctor = service.getDoctorById("doctor-123");
-        assertNotNull(foundDoctor, "Doctor should be found");
-        assertEquals("Dr. Bambang", foundDoctor.getName(), "Doctor name should match");
+        Doctor d = service.getDoctorById("doctor-123");
+        assertNotNull(d);
+        assertEquals("Dr. Bambang", d.getName());
     }
 
     @Test
     void testGetDoctorByIdNotFound() {
-        Doctor notFound = service.getDoctorById("unknown-id");
-        assertNull(notFound, "Doctor should be null if not found");
+        assertNull(service.getDoctorById("no-such-id"));
     }
 }

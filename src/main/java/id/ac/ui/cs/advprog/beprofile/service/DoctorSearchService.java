@@ -1,29 +1,38 @@
 package id.ac.ui.cs.advprog.beprofile.service;
 
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
-import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchByNameStrategy;
+import id.ac.ui.cs.advprog.beprofile.repository.DoctorRepository;
+import id.ac.ui.cs.advprog.beprofile.repository.InMemoryDoctorRepository;
 import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class DoctorSearchService {
 
-    private final List<Doctor> doctors = new ArrayList<>();
-
+    private final DoctorRepository doctorRepository;
     private final Map<String, SearchStrategy> strategies;
 
-    public DoctorSearchService() {
-        strategies = new HashMap<>();
-        strategies.put("name", new SearchByNameStrategy());
+    @Autowired
+    public DoctorSearchService(DoctorRepository doctorRepository,
+                               Map<String, SearchStrategy> strategies) {
+        this.doctorRepository = doctorRepository;
+        this.strategies       = strategies;
+    }
+
+    public void clearDoctors() {
+        if (doctorRepository instanceof InMemoryDoctorRepository) {
+            ((InMemoryDoctorRepository) doctorRepository).clear();
+        }
     }
 
     public void addDoctor(Doctor doctor) {
         if (doctor != null) {
-            doctors.add(doctor);
+            doctorRepository.create(doctor);
         }
     }
 
@@ -32,13 +41,12 @@ public class DoctorSearchService {
         if (strategy == null) {
             throw new IllegalArgumentException("Search type " + type + " is not supported.");
         }
-        return strategy.search(doctors, criteria);
+        List<Doctor> all = new ArrayList<>();
+        doctorRepository.findAll().forEachRemaining(all::add);
+        return strategy.search(all, criteria);
     }
 
     public Doctor getDoctorById(String id) {
-        return doctors.stream()
-                .filter(doctor -> doctor.getId() != null && doctor.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return doctorRepository.findById(id);
     }
 }

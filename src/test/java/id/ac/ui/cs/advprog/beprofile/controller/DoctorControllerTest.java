@@ -1,22 +1,26 @@
 package id.ac.ui.cs.advprog.beprofile.controller;
 
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
+import id.ac.ui.cs.advprog.beprofile.repository.DoctorRepository;
+import id.ac.ui.cs.advprog.beprofile.repository.InMemoryDoctorRepository;
 import id.ac.ui.cs.advprog.beprofile.service.DoctorSearchService;
+import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchByNameStrategy;
+import id.ac.ui.cs.advprog.beprofile.service.strategy.SearchStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -26,28 +30,54 @@ public class DoctorControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     private DoctorSearchService doctorSearchService;
 
-    private Doctor doctor;
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        @Primary
+        public DoctorRepository doctorRepository() {
+            return new InMemoryDoctorRepository();
+        }
+
+        @Bean
+        public SearchStrategy searchByNameStrategy() {
+            return new SearchByNameStrategy();
+        }
+
+        @Bean
+        public Map<String, SearchStrategy> strategies(SearchStrategy searchByNameStrategy) {
+            Map<String, SearchStrategy> m = new HashMap<>();
+            m.put("name", searchByNameStrategy);
+            return m;
+        }
+
+        @Bean
+        public DoctorSearchService doctorSearchService(
+                DoctorRepository repo,
+                Map<String, SearchStrategy> strategies
+        ) {
+            return new DoctorSearchService(repo, strategies);
+        }
+    }
 
     @BeforeEach
     void setUp() {
-        doctor = new Doctor();
-        doctor.setId("doctor-123");
-        doctor.setName("Dr. Bambang");
-        doctor.setPracticeAddress("Jalan Bekasi Raya");
-        doctor.setWorkSchedule("Mon-Fri 09:00-17:00");
-        doctor.setEmail("dr.bambang@example.com");
-        doctor.setPhoneNumber("081234567890");
-        doctor.setRating(4.5);
+        doctorSearchService.clearDoctors();
+        Doctor d = new Doctor();
+        d.setId("doctor-123");
+        d.setName("Dr. Bambang");
+        d.setPracticeAddress("Jalan Bekasi Raya");
+        d.setWorkSchedule("Mon-Fri 09:00-17:00");
+        d.setEmail("dr.bambang@example.com");
+        d.setPhoneNumber("081234567890");
+        d.setRating(4.5);
+        doctorSearchService.addDoctor(d);
     }
 
     @Test
     void testGetDoctorsByName() throws Exception {
-        when(doctorSearchService.search("Bambang", "name"))
-                .thenReturn(Collections.singletonList(doctor));
-
         mockMvc.perform(get("/api/doctors")
                         .param("searchType", "name")
                         .param("criteria", "Bambang")
@@ -55,20 +85,14 @@ public class DoctorControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name", is("Dr. Bambang")));
-
-        verify(doctorSearchService, times(1)).search("Bambang", "name");
     }
 
     @Test
     void testGetDoctorById() throws Exception {
-        when(doctorSearchService.getDoctorById("doctor-123")).thenReturn(doctor);
-
         mockMvc.perform(get("/api/doctors/doctor-123")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Dr. Bambang")))
                 .andExpect(jsonPath("$.email", is("dr.bambang@example.com")));
-
-        verify(doctorSearchService, times(1)).getDoctorById("doctor-123");
     }
 }

@@ -54,4 +54,8 @@ public class InMemoryDoctorRepository implements DoctorRepository {
         }
         return doctor;
     }
+
+    public void clear() {
+        doctorData.clear();
+    }
 }

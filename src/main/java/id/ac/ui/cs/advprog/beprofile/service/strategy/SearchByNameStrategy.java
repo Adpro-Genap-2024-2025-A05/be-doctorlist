@@ -1,9 +1,12 @@
 package id.ac.ui.cs.advprog.beprofile.service.strategy;
 
 import id.ac.ui.cs.advprog.beprofile.model.Doctor;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Component("name")
 public class SearchByNameStrategy implements SearchStrategy {
 
     @Override
