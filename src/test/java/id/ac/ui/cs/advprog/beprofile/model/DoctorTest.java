@@ -18,6 +18,7 @@ class DoctorTest {
         doctor.setEmail("dr.bambang@example.com");
         doctor.setPhoneNumber("081234567890");
         doctor.setRating(4.5);
+        doctor.setSpeciality("Neurosurgeon");
     }
 
     @Test
@@ -54,4 +55,10 @@ class DoctorTest {
     void testGetRating() {
         assertEquals(4.5, doctor.getRating());
     }
+
+    @Test
+    void testGetSpeciality() {
+        assertEquals("Neurosurgeon", doctor.getSpeciality());
+    }
+
 }
