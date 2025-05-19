@@ -32,8 +32,8 @@ class DoctorSearchServiceTest {
 
     @Test
     void search_delegatesToStrategy() {
-        var d1 = new Doctor("1","Asep","Addr","Mon","a@x","081",4.2,"Cardio");
-        var d2 = new Doctor("2","Bambang","Addr","Tue","b@x","082",3.9,"Neuro");
+        var d1 = new Doctor("doctor-1","Dr. Asep","Jalan Bekasi Raya","Mon-Fri 09:00-17:00","dr.asep@example.com","081234567891",4.2,"Cardiologists");
+        var d2 = new Doctor("doctor-123","Dr. Bambang","Jalan Bekasi Raya","Mon-Fri 09:00-17:00","dr.bambang@example.com","081234567890",3.9,"Neurologists");
         when(repo.findAll()).thenReturn(List.of(d1,d2));
         when(nameStrategy.search(List.of(d1,d2), "Asep")).thenReturn(List.of(d1));
 
@@ -53,7 +53,7 @@ class DoctorSearchServiceTest {
 
     @Test
     void getDoctorById_existing_returnsDoctor() {
-        var d = new Doctor("42","Dr X","Addr","Wed","x@y","083",4.7,"Ortho");
+        var d = new Doctor("doctor-42","Dr Senku","Jalan Bekasi Raya","Mon-Fri 09:00-17:00","dr.senku@example.com","081234567892",4.7,"Radiologists");
         when(repo.findById("42")).thenReturn(Optional.of(d));
 
         var out = service.getDoctorById("42");

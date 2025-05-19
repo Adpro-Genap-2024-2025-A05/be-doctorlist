@@ -22,8 +22,6 @@ class DoctorControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    // yes, @MockBean is deprecated in 3.4.0+ but it still works and
-    // is by far the easiest way to wire in your service here.
     @MockBean
     private DoctorSearchService service;
 
@@ -36,7 +34,7 @@ class DoctorControllerTest {
                 "dr.bambang@example.com",
                 "081234567890",
                 4.5,
-                "Cardiology");
+                "Neurosurgeon");
         given(service.search("Bambang","name")).willReturn(List.of(d));
 
         mockMvc.perform(get("/api/doctors")
