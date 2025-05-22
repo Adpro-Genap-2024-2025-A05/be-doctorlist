@@ -24,11 +24,14 @@ public class DoctorSearchService {
     }
 
     public List<Doctor> search(String criteria, String type) {
+        var all = doctorRepository.findAll();
+        if (criteria == null || criteria.trim().isEmpty()) {
+            return all;
+        }
         var strategy = strategies.get(type);
         if (strategy == null) {
             throw new IllegalArgumentException("Search type " + type + " is not supported.");
         }
-        var all = doctorRepository.findAll();
         return strategy.search(all, criteria);
     }
 
