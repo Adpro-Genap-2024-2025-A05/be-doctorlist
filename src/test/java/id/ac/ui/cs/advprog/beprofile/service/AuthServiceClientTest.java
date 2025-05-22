@@ -43,7 +43,7 @@ class AuthServiceClientTest {
         ResponseEntity<ApiResponseDto<List<CaregiverDto>>> resp = ResponseEntity.ok(api);
 
         when(restTemplate.exchange(
-                eq(baseUrl + "/caregivers"),
+                eq(baseUrl + "/data"),
                 eq(HttpMethod.GET),
                 isNull(),
                 any(ParameterizedTypeReference.class)
@@ -97,7 +97,7 @@ class AuthServiceClientTest {
         ResponseEntity<ApiResponseDto<List<CaregiverDto>>> resp = ResponseEntity.ok(api);
 
         when(restTemplate.exchange(
-                startsWith(baseUrl + "/caregivers/search"),
+                startsWith(baseUrl + "/data/search"),
                 eq(HttpMethod.GET),
                 isNull(),
                 any(ParameterizedTypeReference.class)
@@ -115,9 +115,8 @@ class AuthServiceClientTest {
         ApiResponseDto<List<CaregiverDto>> api = ApiResponseDto.success(200, "ok", List.of(dto));
         ResponseEntity<ApiResponseDto<List<CaregiverDto>>> resp = ResponseEntity.ok(api);
 
-        // URL should be without query params
         when(restTemplate.exchange(
-                eq(baseUrl + "/caregivers/search"),
+                eq(baseUrl + "/data/search"),
                 eq(HttpMethod.GET),
                 isNull(),
                 any(ParameterizedTypeReference.class)
@@ -159,7 +158,7 @@ class AuthServiceClientTest {
         ResponseEntity<ApiResponseDto<CaregiverDto>> resp = ResponseEntity.ok(api);
 
         when(restTemplate.exchange(
-                eq(baseUrl + "/caregivers/" + caregiverId),
+                eq(baseUrl + "/data/" + caregiverId),
                 eq(HttpMethod.GET),
                 isNull(),
                 any(ParameterizedTypeReference.class)

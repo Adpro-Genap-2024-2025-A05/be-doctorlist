@@ -90,7 +90,7 @@ class KonsultasiServiceClientTest {
     }
 
     @Test
-    void getAvailableSchedules_withIds_successfulResponse_returnsData() {
+    void getSchedulesForCaregivers_withIds_successfulResponse_returnsData() {
         List<String> ids = List.of(caregiverId, "other");
         ScheduleDto dto = ScheduleDto.builder()
                 .id(UUID.fromString(caregiverId))
@@ -105,34 +105,35 @@ class KonsultasiServiceClientTest {
         ResponseEntity<ApiResponseDto<List<ScheduleDto>>> resp = ResponseEntity.ok(api);
 
         when(restTemplate.exchange(
-                startsWith(baseUrl + "/data/available"),
+                startsWith(baseUrl + "/data/schedules"),
                 eq(HttpMethod.GET),
                 isNull(),
                 any(ParameterizedTypeReference.class)
         )).thenReturn(resp);
 
-        List<ScheduleDto> result = client.getAvailableSchedules(ids);
+        List<ScheduleDto> result = client.getSchedulesForCaregivers(ids);
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
     }
 
     @Test
-    void getAvailableSchedules_nullData_returnsEmptyList() {
+    void getSchedulesForCaregivers_nullData_returnsEmptyList() {
         ResponseEntity<ApiResponseDto<List<ScheduleDto>>> resp = ResponseEntity.ok(ApiResponseDto.success(200, "ok", null));
         when(restTemplate.exchange(anyString(), any(), any(), any(ParameterizedTypeReference.class)))
                 .thenReturn(resp);
 
-        List<ScheduleDto> result = client.getAvailableSchedules(List.of(caregiverId));
+        List<ScheduleDto> result = client.getSchedulesForCaregivers(List.of(caregiverId));
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void getAvailableSchedules_exception_fallsBackToCaregiverSchedules() {
+    void getSchedulesForCaregivers_exception_fallsBackToCaregiverSchedules() {
         List<String> ids = List.of(caregiverId);
         when(restTemplate.exchange(anyString(), any(), any(), any(ParameterizedTypeReference.class)))
                 .thenThrow(new RuntimeException("error"));
+        // spy on new method
         KonsultasiServiceClient spy = Mockito.spy(client);
         ScheduleDto dto = ScheduleDto.builder()
                 .id(UUID.fromString(caregiverId))
@@ -145,9 +146,23 @@ class KonsultasiServiceClientTest {
                 .build();
         when(spy.getCaregiverSchedules(caregiverId)).thenReturn(List.of(dto));
 
-        List<ScheduleDto> result = spy.getAvailableSchedules(ids);
+        List<ScheduleDto> result = spy.getSchedulesForCaregivers(ids);
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
+    }
+
+    @Test
+    void getAvailableSchedules_delegatesToNewMethod() {
+        List<String> ids = List.of(caregiverId);
+        KonsultasiServiceClient spy = Mockito.spy(client);
+
+
+        Mockito.doReturn(List.of()).when(spy).getSchedulesForCaregivers(ids);
+
+        List<ScheduleDto> result = spy.getAvailableSchedules(ids);
+
+        assertNotNull(result);
+        Mockito.verify(spy).getSchedulesForCaregivers(ids);
     }
 }

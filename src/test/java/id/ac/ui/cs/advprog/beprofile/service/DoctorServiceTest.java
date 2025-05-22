@@ -103,7 +103,9 @@ class DoctorServiceTest {
                 .specificDate(LocalDate.now())
                 .oneTime(false)
                 .build();
-        when(konsultasiServiceClient.getAvailableSchedules(List.of(caregiverId))).thenReturn(List.of(sched));
+
+        when(konsultasiServiceClient.getSchedulesForCaregivers(List.of(caregiverId)))
+                .thenReturn(List.of(sched));
         when(konsultasiServiceClient.getCaregiverSchedules(caregiverId)).thenReturn(List.of(sched));
 
         Page<DoctorResponseDto> page = doctorService.searchDoctors(
@@ -119,7 +121,8 @@ class DoctorServiceTest {
     @Test
     void searchDoctors_scheduleServiceThrows_returnsOriginalList() {
         when(authServiceClient.getAllCaregivers()).thenReturn(List.of(sampleCaregiver));
-        when(konsultasiServiceClient.getAvailableSchedules(any())).thenThrow(new RuntimeException("err"));
+        when(konsultasiServiceClient.getSchedulesForCaregivers(any()))
+                .thenThrow(new RuntimeException("err"));
         when(konsultasiServiceClient.getCaregiverSchedules(caregiverId)).thenReturn(List.of());
 
         Page<DoctorResponseDto> page = doctorService.searchDoctors(
