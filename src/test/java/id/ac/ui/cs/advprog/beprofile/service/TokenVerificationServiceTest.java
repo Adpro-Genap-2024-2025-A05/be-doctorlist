@@ -38,6 +38,7 @@ class TokenVerificationServiceTest {
         ReflectionTestUtils.setField(tokenVerificationService, "secretKey", testSecret);
     }
 
+
     private String generateValidToken(Role role) {
         return generateToken(testUserId.toString(), testEmail, role.name(), 3600000);
     }
@@ -149,6 +150,26 @@ class TokenVerificationServiceTest {
         }
     }
 
+    private String generateTokenWithName(String name) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", testUserId.toString());
+        claims.put("role", Role.CAREGIVER.name());
+        claims.put("name", name);
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + 3_600_000);
+
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(testSecret));
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(testEmail)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     @Nested
     class TokenInformationExtractionTests {
         @Test
@@ -167,6 +188,13 @@ class TokenVerificationServiceTest {
             Role result = tokenVerificationService.getUserRoleFromToken(token);
 
             assertEquals(Role.PACILIAN, result);
+        }
+
+        @Test
+        void testGetUserNameFromToken() {
+            String token = generateTokenWithName("Dr. Alice");
+            String name = tokenVerificationService.getUserNameFromToken(token);
+            assertEquals("Dr. Alice", name);
         }
     }
 
