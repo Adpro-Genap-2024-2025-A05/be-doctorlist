@@ -26,7 +26,7 @@ public class AuthServiceClient {
 
     public List<CaregiverDto> getAllCaregivers() {
         try {
-            String url = authServiceBaseUrl + "/caregivers";
+            String url = authServiceBaseUrl + "/data";
             
             ResponseEntity<ApiResponseDto<List<CaregiverDto>>> response = restTemplate.exchange(
                 url,
@@ -52,7 +52,7 @@ public class AuthServiceClient {
 
     public List<CaregiverDto> searchCaregivers(String name, String speciality) {
         try {
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(authServiceBaseUrl + "/caregivers/search");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(authServiceBaseUrl + "/data/search");
             
             if (name != null && !name.trim().isEmpty()) {
                 builder.queryParam("name", name);
@@ -87,7 +87,7 @@ public class AuthServiceClient {
 
     public CaregiverDto getCaregiverById(String id) {
         try {
-            String url = authServiceBaseUrl + "/caregivers/" + id;
+            String url = authServiceBaseUrl + "/data/" + id;
             
             ResponseEntity<ApiResponseDto<CaregiverDto>> response = restTemplate.exchange(
                 url,
