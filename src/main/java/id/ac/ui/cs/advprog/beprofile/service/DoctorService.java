@@ -1,9 +1,6 @@
 package id.ac.ui.cs.advprog.beprofile.service;
 
-import id.ac.ui.cs.advprog.beprofile.dto.CaregiverDto;
-import id.ac.ui.cs.advprog.beprofile.dto.DoctorResponseDto;
-import id.ac.ui.cs.advprog.beprofile.dto.DoctorSearchRequestDto;
-import id.ac.ui.cs.advprog.beprofile.dto.ScheduleDto;
+import id.ac.ui.cs.advprog.beprofile.dto.*;
 import id.ac.ui.cs.advprog.beprofile.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +22,7 @@ public class DoctorService {
 
     private final AuthServiceClient authServiceClient;
     private final KonsultasiServiceClient konsultasiServiceClient;
+    private final RatingServiceClient ratingServiceClient;
 
     public Page<DoctorResponseDto> searchDoctors(DoctorSearchRequestDto searchRequest) {
         log.info("Searching doctors with criteria: {}", searchRequest);
@@ -104,6 +102,9 @@ public class DoctorService {
 
     private DoctorResponseDto convertCaregiverToDoctorWithSchedules(CaregiverDto caregiver) {
         List<ScheduleDto> schedules = konsultasiServiceClient.getCaregiverSchedules(caregiver.getId());
+        
+        // Fetch rating stats from the rating service
+        CaregiverRatingStatsDto ratingStats = ratingServiceClient.getCaregiverRatingStats(caregiver.getId());
 
         return DoctorResponseDto.builder()
                 .id(caregiver.getId())
@@ -114,8 +115,8 @@ public class DoctorService {
                 .workAddress(caregiver.getWorkAddress())
                 .phoneNumber(caregiver.getPhoneNumber())
                 .description("Dr. " + caregiver.getName() + " specializes in " + caregiver.getSpeciality())
-                .rating(4.5)
-                .totalReviews(0)
+                .rating(ratingStats.getAverageRating()) 
+                .totalReviews(ratingStats.getTotalReviews()) 
                 .workingSchedules(schedules)
                 .build();
     }
