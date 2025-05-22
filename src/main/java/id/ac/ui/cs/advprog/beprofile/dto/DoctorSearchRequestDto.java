@@ -12,7 +12,10 @@ import lombok.NoArgsConstructor;
 public class DoctorSearchRequestDto {
     private String name;
     private String speciality;
-    private String workingSchedule; // Otw implementasi
+    private String workingSchedule;
+    private String workingDay;
+    private String startTime;
+    private String endTime;
     private Integer page;
     private Integer size;
 }

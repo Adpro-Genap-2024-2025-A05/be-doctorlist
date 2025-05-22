@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +32,7 @@ public class DoctorService {
         try {
             List<CaregiverDto> caregivers = fetchCaregiversFromAuth(searchRequest);
 
-            if (searchRequest.getWorkingSchedule() != null && !searchRequest.getWorkingSchedule().trim().isEmpty()) {
-                caregivers = filterCaregiversBySchedule(caregivers, searchRequest.getWorkingSchedule());
-            }
+            caregivers = applyScheduleFiltering(caregivers, searchRequest);
 
             List<DoctorResponseDto> doctors = caregivers.stream()
                     .map(this::convertCaregiverToDoctorWithSchedules)
@@ -71,9 +71,32 @@ public class DoctorService {
         }
     }
 
-    private List<CaregiverDto> filterCaregiversBySchedule(List<CaregiverDto> caregivers, String workingSchedule) {
+    private List<CaregiverDto> applyScheduleFiltering(List<CaregiverDto> caregivers, DoctorSearchRequestDto searchRequest) {
+
+        if (searchRequest.getWorkingDay() != null && !searchRequest.getWorkingDay().trim().isEmpty()) {
+            if (searchRequest.getStartTime() != null && !searchRequest.getStartTime().trim().isEmpty() &&
+                    searchRequest.getEndTime() != null && !searchRequest.getEndTime().trim().isEmpty()) {
+
+                log.info("Filtering by day '{}' and time range '{}-{}'",
+                        searchRequest.getWorkingDay(), searchRequest.getStartTime(), searchRequest.getEndTime());
+                return filterCaregiversByDayAndTime(caregivers, searchRequest.getWorkingDay(),
+                        searchRequest.getStartTime(), searchRequest.getEndTime());
+            } else {
+                log.info("Filtering by day '{}' only", searchRequest.getWorkingDay());
+                return filterCaregiversByDay(caregivers, searchRequest.getWorkingDay());
+            }
+        } else if (searchRequest.getWorkingSchedule() != null && !searchRequest.getWorkingSchedule().trim().isEmpty()) {
+
+            log.info("Using deprecated workingSchedule parameter: '{}'", searchRequest.getWorkingSchedule());
+            return filterCaregiversByDay(caregivers, searchRequest.getWorkingSchedule());
+        }
+
+        return caregivers;
+    }
+
+    private List<CaregiverDto> filterCaregiversByDay(List<CaregiverDto> caregivers, String workingDay) {
         try {
-            DayOfWeek requestedDay = DayOfWeek.valueOf(workingSchedule.toUpperCase());
+            DayOfWeek requestedDay = DayOfWeek.valueOf(workingDay.toUpperCase());
 
             List<String> caregiverIds = caregivers.stream()
                     .map(CaregiverDto::getId)
@@ -92,18 +115,70 @@ public class DoctorService {
                     .collect(Collectors.toList());
 
         } catch (IllegalArgumentException e) {
-            log.warn("Invalid working schedule format: {}. Ignoring schedule filter.", workingSchedule);
+            log.warn("Invalid working day format: {}. Ignoring day filter.", workingDay);
             return caregivers;
         } catch (Exception e) {
-            log.error("Error filtering by schedule: {}", e.getMessage());
+            log.error("Error filtering by day: {}", e.getMessage());
             return caregivers;
         }
     }
 
+    private List<CaregiverDto> filterCaregiversByDayAndTime(List<CaregiverDto> caregivers,
+                                                            String workingDay, String startTime, String endTime) {
+        try {
+            DayOfWeek requestedDay = DayOfWeek.valueOf(workingDay.toUpperCase());
+            LocalTime requestedStart = LocalTime.parse(startTime);
+            LocalTime requestedEnd = LocalTime.parse(endTime);
+
+            if (!requestedStart.isBefore(requestedEnd)) {
+                log.warn("Invalid time range: {} to {}. Start time must be before end time.", startTime, endTime);
+                return filterCaregiversByDay(caregivers, workingDay);
+            }
+
+            List<String> caregiverIds = caregivers.stream()
+                    .map(CaregiverDto::getId)
+                    .collect(Collectors.toList());
+
+            List<ScheduleDto> allSchedules = konsultasiServiceClient.getSchedulesForCaregivers(caregiverIds);
+
+            List<String> matchingCaregiverIds = allSchedules.stream()
+                    .filter(schedule -> schedule.getDay().equals(requestedDay))
+                    .filter(schedule -> timeSlotsOverlap(schedule.getStartTime(), schedule.getEndTime(),
+                            requestedStart, requestedEnd))
+                    .map(schedule -> schedule.getCaregiverId().toString())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            log.info("Found {} doctors available on {} from {} to {}",
+                    matchingCaregiverIds.size(), workingDay, startTime, endTime);
+
+            return caregivers.stream()
+                    .filter(caregiver -> matchingCaregiverIds.contains(caregiver.getId()))
+                    .collect(Collectors.toList());
+
+        } catch (IllegalArgumentException | DateTimeParseException e) {
+            log.warn("Invalid day or time format. Day: {}, Start: {}, End: {}. Error: {}",
+                    workingDay, startTime, endTime, e.getMessage());
+            return filterCaregiversByDay(caregivers, workingDay);
+        } catch (Exception e) {
+            log.error("Error filtering by day and time: {}", e.getMessage());
+            return caregivers;
+        }
+    }
+
+    private boolean timeSlotsOverlap(LocalTime scheduleStart, LocalTime scheduleEnd,
+                                     LocalTime requestedStart, LocalTime requestedEnd) {
+        boolean overlaps = requestedStart.isBefore(scheduleEnd) && requestedEnd.isAfter(scheduleStart);
+
+        log.debug("Checking overlap: Schedule({}-{}) vs Requested({}-{}) = {}",
+                scheduleStart, scheduleEnd, requestedStart, requestedEnd, overlaps);
+
+        return overlaps;
+    }
+
     private DoctorResponseDto convertCaregiverToDoctorWithSchedules(CaregiverDto caregiver) {
         List<ScheduleDto> schedules = konsultasiServiceClient.getCaregiverSchedules(caregiver.getId());
-        
-        // Fetch rating stats from the rating service
+
         CaregiverRatingStatsDto ratingStats = ratingServiceClient.getCaregiverRatingStats(caregiver.getId());
 
         return DoctorResponseDto.builder()
@@ -115,8 +190,8 @@ public class DoctorService {
                 .workAddress(caregiver.getWorkAddress())
                 .phoneNumber(caregiver.getPhoneNumber())
                 .description("Dr. " + caregiver.getName() + " specializes in " + caregiver.getSpeciality())
-                .rating(ratingStats.getAverageRating()) 
-                .totalReviews(ratingStats.getTotalReviews()) 
+                .rating(ratingStats.getAverageRating())
+                .totalReviews(ratingStats.getTotalReviews())
                 .workingSchedules(schedules)
                 .build();
     }

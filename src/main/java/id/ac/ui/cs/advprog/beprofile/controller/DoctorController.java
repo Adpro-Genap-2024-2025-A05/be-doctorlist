@@ -24,6 +24,9 @@ public class DoctorController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String speciality,
             @RequestParam(required = false) String workingSchedule,
+            @RequestParam(required = false) String workingDay,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
@@ -31,6 +34,9 @@ public class DoctorController {
                 .name(name)
                 .speciality(speciality)
                 .workingSchedule(workingSchedule)
+                .workingDay(workingDay)
+                .startTime(startTime)
+                .endTime(endTime)
                 .page(page)
                 .size(size)
                 .build();
