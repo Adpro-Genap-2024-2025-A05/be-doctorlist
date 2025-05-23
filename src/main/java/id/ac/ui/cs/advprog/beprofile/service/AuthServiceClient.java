@@ -88,7 +88,7 @@ public class AuthServiceClient {
 
     public CaregiverDto getCaregiverById(String id) {
         try {
-            String url = authServiceBaseUrl + "/data/" + id;
+            String url = authServiceBaseUrl + "/data/caregiver" + id;
             
             ResponseEntity<ApiResponseDto<CaregiverDto>> response = restTemplate.exchange(
                 url,
