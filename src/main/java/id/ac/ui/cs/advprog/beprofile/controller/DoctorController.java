@@ -20,6 +20,7 @@ public class DoctorController {
 
         private final DoctorService doctorService;
 
+<<<<<<< HEAD
         @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
         public ResponseEntity<ApiResponseDto<Page<DoctorResponseDto>>> searchDoctors(
                         @RequestParam(required = false) String name,
@@ -36,6 +37,29 @@ public class DoctorController {
                                 throw new IllegalArgumentException("Invalid speciality: " + speciality);
                         }
                 }
+=======
+    @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponseDto<Page<DoctorResponseDto>>> searchDoctors(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String speciality,
+            @RequestParam(required = false) String workingSchedule,
+            @RequestParam(required = false) String workingDay,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+
+        DoctorSearchRequestDto searchRequest = DoctorSearchRequestDto.builder()
+                .name(name)
+                .speciality(speciality)
+                .workingSchedule(workingSchedule)
+                .workingDay(workingDay)
+                .startTime(startTime)
+                .endTime(endTime)
+                .page(page)
+                .size(size)
+                .build();
+>>>>>>> c4dc56d02cdfd643ae14f41617ae1bda6a05400d
 
                 DoctorSearchRequestDto searchRequest = DoctorSearchRequestDto.builder()
                                 .name(name)

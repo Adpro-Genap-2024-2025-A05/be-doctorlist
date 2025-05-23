@@ -1,9 +1,6 @@
 package id.ac.ui.cs.advprog.beprofile.service;
 
-import id.ac.ui.cs.advprog.beprofile.dto.CaregiverDto;
-import id.ac.ui.cs.advprog.beprofile.dto.DoctorResponseDto;
-import id.ac.ui.cs.advprog.beprofile.dto.DoctorSearchRequestDto;
-import id.ac.ui.cs.advprog.beprofile.dto.ScheduleDto;
+import id.ac.ui.cs.advprog.beprofile.dto.*;
 import id.ac.ui.cs.advprog.beprofile.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +17,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 class DoctorServiceTest {
@@ -30,6 +28,9 @@ class DoctorServiceTest {
     @Mock
     private KonsultasiServiceClient konsultasiServiceClient;
 
+    @Mock
+    private RatingServiceClient ratingServiceClient;
+
     @InjectMocks
     private DoctorService doctorService;
 
@@ -39,6 +40,12 @@ class DoctorServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(ratingServiceClient.getCaregiverRatingStats(anyString()))
+                .thenReturn(CaregiverRatingStatsDto.builder()
+                        .averageRating(0.0)
+                        .totalReviews(0)
+                        .build());
+
         caregiverId = UUID.randomUUID().toString();
         sampleCaregiver = CaregiverDto.builder()
                 .id(caregiverId)
