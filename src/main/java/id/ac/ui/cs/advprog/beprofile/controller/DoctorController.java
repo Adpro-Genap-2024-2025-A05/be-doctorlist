@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.beprofile.controller;
 import id.ac.ui.cs.advprog.beprofile.dto.ApiResponseDto;
 import id.ac.ui.cs.advprog.beprofile.dto.DoctorResponseDto;
 import id.ac.ui.cs.advprog.beprofile.dto.DoctorSearchRequestDto;
+import id.ac.ui.cs.advprog.beprofile.enums.Speciality;
 import id.ac.ui.cs.advprog.beprofile.service.DoctorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,66 +18,69 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class DoctorController {
 
-    private final DoctorService doctorService;
+        private final DoctorService doctorService;
 
-    @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponseDto<Page<DoctorResponseDto>>> searchDoctors(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String speciality,
-            @RequestParam(required = false) String workingSchedule,
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+        @GetMapping(path = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<ApiResponseDto<Page<DoctorResponseDto>>> searchDoctors(
+                        @RequestParam(required = false) String name,
+                        @RequestParam(required = false) String speciality,
+                        @RequestParam(required = false) String workingSchedule,
+                        @RequestParam(defaultValue = "0") Integer page,
+                        @RequestParam(defaultValue = "10") Integer size) {
 
-        DoctorSearchRequestDto searchRequest = DoctorSearchRequestDto.builder()
-                .name(name)
-                .speciality(speciality)
-                .workingSchedule(workingSchedule)
-                .page(page)
-                .size(size)
-                .build();
+                Speciality specialityEnum = null;
+                if (speciality != null && !speciality.trim().isEmpty()) {
+                        try {
+                                specialityEnum = Speciality.fromDisplayName(speciality.trim());
+                        } catch (IllegalArgumentException e) {
+                                throw new IllegalArgumentException("Invalid speciality: " + speciality);
+                        }
+                }
 
-        Page<DoctorResponseDto> doctors = doctorService.searchDoctors(searchRequest);
+                DoctorSearchRequestDto searchRequest = DoctorSearchRequestDto.builder()
+                                .name(name)
+                                .speciality(specialityEnum) 
+                                .workingSchedule(workingSchedule)
+                                .page(page)
+                                .size(size)
+                                .build();
 
-        return ResponseEntity.ok(
-                ApiResponseDto.success(
-                        HttpStatus.OK.value(),
-                        "Doctors retrieved successfully",
-                        doctors
-                )
-        );
-    }
+                Page<DoctorResponseDto> doctors = doctorService.searchDoctors(searchRequest);
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponseDto<Page<DoctorResponseDto>>> getAllDoctors(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+                return ResponseEntity.ok(
+                                ApiResponseDto.success(
+                                                HttpStatus.OK.value(),
+                                                "Doctors retrieved successfully",
+                                                doctors));
+        }
 
-        DoctorSearchRequestDto searchRequest = DoctorSearchRequestDto.builder()
-                .page(page)
-                .size(size)
-                .build();
+        @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<ApiResponseDto<Page<DoctorResponseDto>>> getAllDoctors(
+                        @RequestParam(defaultValue = "0") Integer page,
+                        @RequestParam(defaultValue = "10") Integer size) {
 
-        Page<DoctorResponseDto> doctors = doctorService.searchDoctors(searchRequest);
+                DoctorSearchRequestDto searchRequest = DoctorSearchRequestDto.builder()
+                                .page(page)
+                                .size(size)
+                                .build();
 
-        return ResponseEntity.ok(
-                ApiResponseDto.success(
-                        HttpStatus.OK.value(),
-                        "All doctors retrieved successfully",
-                        doctors
-                )
-        );
-    }
+                Page<DoctorResponseDto> doctors = doctorService.searchDoctors(searchRequest);
 
-    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponseDto<DoctorResponseDto>> getDoctorById(@PathVariable String id) {
-        DoctorResponseDto doctor = doctorService.getDoctorById(id);
+                return ResponseEntity.ok(
+                                ApiResponseDto.success(
+                                                HttpStatus.OK.value(),
+                                                "All doctors retrieved successfully",
+                                                doctors));
+        }
 
-        return ResponseEntity.ok(
-                ApiResponseDto.success(
-                        HttpStatus.OK.value(),
-                        "Doctor details retrieved successfully",
-                        doctor
-                )
-        );
-    }
+        @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<ApiResponseDto<DoctorResponseDto>> getDoctorById(@PathVariable String id) {
+                DoctorResponseDto doctor = doctorService.getDoctorById(id);
+
+                return ResponseEntity.ok(
+                                ApiResponseDto.success(
+                                                HttpStatus.OK.value(),
+                                                "Doctor details retrieved successfully",
+                                                doctor));
+        }
 }

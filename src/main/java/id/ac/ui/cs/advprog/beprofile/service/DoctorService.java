@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.beprofile.service;
 
 import id.ac.ui.cs.advprog.beprofile.dto.*;
+import id.ac.ui.cs.advprog.beprofile.enums.Speciality;
 import id.ac.ui.cs.advprog.beprofile.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,9 +63,9 @@ public class DoctorService {
 
     private List<CaregiverDto> fetchCaregiversFromAuth(DoctorSearchRequestDto searchRequest) {
         String name = searchRequest.getName();
-        String speciality = searchRequest.getSpeciality();
+        Speciality speciality = searchRequest.getSpeciality(); 
 
-        if ((name != null && !name.trim().isEmpty()) || (speciality != null && !speciality.trim().isEmpty())) {
+        if ((name != null && !name.trim().isEmpty()) || speciality != null) {
             return authServiceClient.searchCaregivers(name, speciality);
         } else {
             return authServiceClient.getAllCaregivers();
@@ -103,7 +104,6 @@ public class DoctorService {
     private DoctorResponseDto convertCaregiverToDoctorWithSchedules(CaregiverDto caregiver) {
         List<ScheduleDto> schedules = konsultasiServiceClient.getCaregiverSchedules(caregiver.getId());
         
-        // Fetch rating stats from the rating service
         CaregiverRatingStatsDto ratingStats = ratingServiceClient.getCaregiverRatingStats(caregiver.getId());
 
         return DoctorResponseDto.builder()
@@ -111,10 +111,10 @@ public class DoctorService {
                 .caregiverId(caregiver.getId())
                 .name(caregiver.getName())
                 .email(caregiver.getEmail())
-                .speciality(caregiver.getSpeciality())
+                .speciality(caregiver.getSpeciality())  
                 .workAddress(caregiver.getWorkAddress())
                 .phoneNumber(caregiver.getPhoneNumber())
-                .description("Dr. " + caregiver.getName() + " specializes in " + caregiver.getSpeciality())
+                .description("Dr. " + caregiver.getName() + " specializes in " + caregiver.getSpeciality().getDisplayName())
                 .rating(ratingStats.getAverageRating()) 
                 .totalReviews(ratingStats.getTotalReviews()) 
                 .workingSchedules(schedules)

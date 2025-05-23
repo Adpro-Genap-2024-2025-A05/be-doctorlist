@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.beprofile.dto;
 
+import id.ac.ui.cs.advprog.beprofile.enums.Speciality;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CaregiverDto {
     private String id;
-    private String email;
     private String name;
-    private String nik;
-    private String address;
-    private String phoneNumber;
-    private String role;
-    private String speciality;
+    private String email;
+    private Speciality speciality;  
     private String workAddress;
+    private String phoneNumber;
 }
