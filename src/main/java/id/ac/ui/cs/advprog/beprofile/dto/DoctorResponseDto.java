@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class DoctorResponseDto {
     private String id;
-    private String caregiverId;
     private String name;
     private String email;
     private Speciality speciality;  

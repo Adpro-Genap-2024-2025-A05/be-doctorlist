@@ -108,7 +108,6 @@ public class DoctorService {
 
         return DoctorResponseDto.builder()
                 .id(caregiver.getId())
-                .caregiverId(caregiver.getId())
                 .name(caregiver.getName())
                 .email(caregiver.getEmail())
                 .speciality(caregiver.getSpeciality())  
