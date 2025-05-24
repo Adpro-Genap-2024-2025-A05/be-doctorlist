@@ -21,6 +21,6 @@ public class DoctorResponseDto {
     private String phoneNumber;
     private String description;
     private Double rating;
-    private Integer totalReviews;
+    private Long totalRatings;
     private List<ScheduleDto> workingSchedules;
 }

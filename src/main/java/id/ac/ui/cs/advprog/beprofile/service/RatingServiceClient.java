@@ -26,25 +26,30 @@ public class RatingServiceClient {
     public CaregiverRatingStatsDto getCaregiverRatingStats(String caregiverId) {
         try {
             String url = ratingServiceBaseUrl + "/rating/caregiver/" + caregiverId + "/stats";
-            
+            log.info("Calling rating service at URL: {}", url);
+
             ResponseEntity<ApiResponseDto<CaregiverRatingStatsDto>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<ApiResponseDto<CaregiverRatingStatsDto>>() {}
-            );
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<ApiResponseDto<CaregiverRatingStatsDto>>() {
+                    });
+
+            log.info("Response status: {}", response.getStatusCode());
+            log.info("Response body: {}", response.getBody());
 
             if (response.getBody() != null && response.getBody().getData() != null) {
-                log.info("Successfully fetched rating stats for caregiver {}", caregiverId);
-                return response.getBody().getData();
+                CaregiverRatingStatsDto stats = response.getBody().getData();
+
+                return stats;
             }
-            
+
             log.warn("No rating stats found for caregiver {}", caregiverId);
             return createDefaultStats();
-            
+
         } catch (Exception e) {
-            log.error("Error fetching rating stats for caregiver {} from rating service: {}", 
-                    caregiverId, e.getMessage());
+            log.error("Error fetching rating stats for caregiver {} from rating service: {}",
+                    caregiverId, e.getMessage(), e);
             return createDefaultStats();
         }
     }
@@ -52,7 +57,7 @@ public class RatingServiceClient {
     private CaregiverRatingStatsDto createDefaultStats() {
         return CaregiverRatingStatsDto.builder()
                 .averageRating(0.0)
-                .totalReviews(0)
+                .totalRatings(0L)
                 .build();
     }
 }

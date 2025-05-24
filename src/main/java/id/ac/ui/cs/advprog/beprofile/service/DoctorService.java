@@ -115,7 +115,7 @@ public class DoctorService {
                 .phoneNumber(caregiver.getPhoneNumber())
                 .description("Dr. " + caregiver.getName() + " specializes in " + caregiver.getSpeciality().getDisplayName())
                 .rating(ratingStats.getAverageRating()) 
-                .totalReviews(ratingStats.getTotalReviews()) 
+                .totalRatings(ratingStats.getTotalRatings()) 
                 .workingSchedules(schedules)
                 .build();
     }

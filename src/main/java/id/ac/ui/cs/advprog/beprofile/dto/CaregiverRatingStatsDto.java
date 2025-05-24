@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.beprofile.dto;
 
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,14 +8,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class CaregiverRatingStatsDto {
+    private UUID caregiverId;
     private Double averageRating;
-    private Integer totalReviews;
-    private Integer fiveStarCount;
-    private Integer fourStarCount;
-    private Integer threeStarCount;
-    private Integer twoStarCount;
-    private Integer oneStarCount;
+    private Long totalRatings; 
 }
