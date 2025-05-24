@@ -16,7 +16,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 @RestController
-@RequestMapping("/doctor")
+@RequestMapping("/api/doctor")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class DoctorController {
