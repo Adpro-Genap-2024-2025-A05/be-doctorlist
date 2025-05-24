@@ -27,62 +27,68 @@ public class KonsultasiServiceClient {
     public List<ScheduleDto> getCaregiverSchedules(String caregiverId) {
         try {
             String url = konsultasiServiceBaseUrl + "/data/caregiver/" + caregiverId;
-            
+
             ResponseEntity<ApiResponseDto<List<ScheduleDto>>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<ApiResponseDto<List<ScheduleDto>>>() {}
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<ApiResponseDto<List<ScheduleDto>>>() {}
             );
 
             if (response.getBody() != null && response.getBody().getData() != null) {
-                log.info("Successfully fetched {} schedules for caregiver {}", 
+                log.info("Successfully fetched {} schedules for caregiver {}",
                         response.getBody().getData().size(), caregiverId);
                 return response.getBody().getData();
             }
-            
+
             log.warn("No schedules found for caregiver {}", caregiverId);
             return List.of();
-            
+
         } catch (Exception e) {
-            log.error("Error fetching schedules for caregiver {} from konsultasi service: {}", 
-                     caregiverId, e.getMessage());
+            log.error("Error fetching schedules for caregiver {} from konsultasi service: {}",
+                    caregiverId, e.getMessage());
             return List.of();
         }
     }
 
-    public List<ScheduleDto> getAvailableSchedules(List<String> caregiverIds) {
+    public List<ScheduleDto> getSchedulesForCaregivers(List<String> caregiverIds) {
         try {
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(
-                konsultasiServiceBaseUrl + "/data/available");
-            
+                    konsultasiServiceBaseUrl + "/data/schedules");
+
             if (caregiverIds != null && !caregiverIds.isEmpty()) {
                 builder.queryParam("caregiverIds", caregiverIds.toArray());
             }
-            
+
             String url = builder.toUriString();
-            
+
             ResponseEntity<ApiResponseDto<List<ScheduleDto>>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<ApiResponseDto<List<ScheduleDto>>>() {}
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<ApiResponseDto<List<ScheduleDto>>>() {}
             );
 
             if (response.getBody() != null && response.getBody().getData() != null) {
-                log.info("Successfully fetched {} available schedules for {} caregivers", 
+                log.info("Successfully fetched {} schedules for {} caregivers",
                         response.getBody().getData().size(), caregiverIds.size());
                 return response.getBody().getData();
             }
-            
-            log.warn("No available schedules found for caregivers: {}", caregiverIds);
+
+            log.warn("No schedules found for caregivers: {}", caregiverIds);
             return List.of();
-            
+
         } catch (Exception e) {
-            log.error("Error fetching available schedules from konsultasi service: {}", e.getMessage());
+            log.error("Error fetching schedules from konsultasi service: {}", e.getMessage());
             return caregiverIds.stream()
                     .flatMap(id -> getCaregiverSchedules(id).stream())
                     .toList();
         }
+    }
+
+    @Deprecated
+    public List<ScheduleDto> getAvailableSchedules(List<String> caregiverIds) {
+        log.warn("getAvailableSchedules method is deprecated. Use getSchedulesForCaregivers instead.");
+        return getSchedulesForCaregivers(caregiverIds);
     }
 }

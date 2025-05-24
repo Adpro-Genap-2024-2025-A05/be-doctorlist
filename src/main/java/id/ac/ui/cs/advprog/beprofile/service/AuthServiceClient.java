@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.beprofile.service;
 
 import id.ac.ui.cs.advprog.beprofile.dto.ApiResponseDto;
 import id.ac.ui.cs.advprog.beprofile.dto.CaregiverDto;
+import id.ac.ui.cs.advprog.beprofile.enums.Speciality;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ public class AuthServiceClient {
 
     public List<CaregiverDto> getAllCaregivers() {
         try {
-            String url = authServiceBaseUrl + "/caregivers";
+            String url = authServiceBaseUrl + "/data";
             
             ResponseEntity<ApiResponseDto<List<CaregiverDto>>> response = restTemplate.exchange(
                 url,
@@ -50,16 +51,16 @@ public class AuthServiceClient {
         }
     }
 
-    public List<CaregiverDto> searchCaregivers(String name, String speciality) {
+    public List<CaregiverDto> searchCaregivers(String name, Speciality speciality) { 
         try {
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(authServiceBaseUrl + "/caregivers/search");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(authServiceBaseUrl + "/data/search");
             
             if (name != null && !name.trim().isEmpty()) {
                 builder.queryParam("name", name);
             }
             
-            if (speciality != null && !speciality.trim().isEmpty()) {
-                builder.queryParam("speciality", speciality);
+            if (speciality != null) {
+                builder.queryParam("speciality", speciality.getDisplayName());
             }
             
             String url = builder.toUriString();
@@ -87,7 +88,7 @@ public class AuthServiceClient {
 
     public CaregiverDto getCaregiverById(String id) {
         try {
-            String url = authServiceBaseUrl + "/caregivers/" + id;
+            String url = authServiceBaseUrl + "/data/caregiver/" + id;
             
             ResponseEntity<ApiResponseDto<CaregiverDto>> response = restTemplate.exchange(
                 url,

@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.beprofile.dto;
 
+import id.ac.ui.cs.advprog.beprofile.enums.Speciality;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,14 +14,13 @@ import java.util.List;
 @NoArgsConstructor
 public class DoctorResponseDto {
     private String id;
-    private String caregiverId;
     private String name;
     private String email;
-    private String speciality;
+    private Speciality speciality;  
     private String workAddress;
     private String phoneNumber;
     private String description;
     private Double rating;
-    private Integer totalReviews;
+    private Long totalRatings;
     private List<ScheduleDto> workingSchedules;
 }
