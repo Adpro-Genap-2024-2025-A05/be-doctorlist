@@ -38,3 +38,4 @@ out/
 .env
 
 src/test/resources/
+.DS_Store
