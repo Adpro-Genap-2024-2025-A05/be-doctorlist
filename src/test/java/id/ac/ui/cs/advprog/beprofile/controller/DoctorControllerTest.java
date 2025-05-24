@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.beprofile.controller;
 import id.ac.ui.cs.advprog.beprofile.dto.ApiResponseDto;
 import id.ac.ui.cs.advprog.beprofile.dto.DoctorResponseDto;
 import id.ac.ui.cs.advprog.beprofile.dto.DoctorSearchRequestDto;
+import id.ac.ui.cs.advprog.beprofile.enums.Speciality;
 import id.ac.ui.cs.advprog.beprofile.service.DoctorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,7 +45,7 @@ class DoctorControllerTest {
         DoctorResponseDto doctor = DoctorResponseDto.builder()
                 .id("1")
                 .name("Dr. John")
-                .speciality("Cardiology")
+                .speciality(Speciality.DOKTER_UMUM)
                 .workingSchedules(Collections.emptyList())
                 .build();
         Page<DoctorResponseDto> page = new PageImpl<>(List.of(doctor));
@@ -50,9 +53,18 @@ class DoctorControllerTest {
         // Mock service
         when(doctorService.searchDoctors(any(DoctorSearchRequestDto.class))).thenReturn(page);
 
-        // Call controller
+        // Call controller with all params
         ResponseEntity<ApiResponseDto<Page<DoctorResponseDto>>> response = doctorController
-                .searchDoctors("John", "Cardiology", "Mon-Fri", 1, 5);
+                .searchDoctors(
+                        "John",
+                        "Dokter Umum",
+                        "Mon-Fri",
+                        "MONDAY",
+                        "08:00",
+                        "12:00",
+                        1,
+                        5
+                );
 
         // Verify status and body
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -67,8 +79,11 @@ class DoctorControllerTest {
         verify(doctorService).searchDoctors(captor.capture());
         DoctorSearchRequestDto dto = captor.getValue();
         assertEquals("John", dto.getName());
-        assertEquals("Cardiology", dto.getSpeciality());
+        assertEquals(Speciality.DOKTER_UMUM, dto.getSpeciality());
         assertEquals("Mon-Fri", dto.getWorkingSchedule());
+        assertEquals(DayOfWeek.MONDAY, dto.getWorkingDay());
+        assertEquals(LocalTime.parse("08:00"), dto.getStartTime());
+        assertEquals(LocalTime.parse("12:00"), dto.getEndTime());
         assertEquals(1, dto.getPage());
         assertEquals(5, dto.getSize());
     }
@@ -79,7 +94,7 @@ class DoctorControllerTest {
         DoctorResponseDto doctor = DoctorResponseDto.builder()
                 .id("2")
                 .name("Dr. Jane")
-                .speciality("Dermatology")
+                .speciality(Speciality.SPESIALIS_ANAK)
                 .workingSchedules(Collections.emptyList())
                 .build();
         Page<DoctorResponseDto> page = new PageImpl<>(List.of(doctor));
@@ -102,6 +117,9 @@ class DoctorControllerTest {
         assertNull(dto.getName());
         assertNull(dto.getSpeciality());
         assertNull(dto.getWorkingSchedule());
+        assertNull(dto.getWorkingDay());
+        assertNull(dto.getStartTime());
+        assertNull(dto.getEndTime());
         assertEquals(0, dto.getPage());
         assertEquals(10, dto.getSize());
     }
@@ -112,7 +130,7 @@ class DoctorControllerTest {
         DoctorResponseDto doctor = DoctorResponseDto.builder()
                 .id("3")
                 .name("Dr. Smith")
-                .speciality("Neurology")
+                .speciality(Speciality.SPESIALIS_KULIT)
                 .workingSchedules(Collections.emptyList())
                 .build();
 
@@ -128,5 +146,46 @@ class DoctorControllerTest {
         assertNotNull(body.getData());
         assertEquals("3", body.getData().getId());
         assertEquals("Dr. Smith", body.getData().getName());
+        assertEquals(Speciality.SPESIALIS_KULIT, body.getData().getSpeciality());
+    }
+
+    @Test
+    void searchDoctors_invalidSpeciality_shouldThrowException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                doctorController.searchDoctors(
+                        "John", "InvalidSpeciality", null, null, null, null, 0, 10
+                )
+        );
+        assertEquals("Invalid speciality: InvalidSpeciality", exception.getMessage());
+    }
+
+    @Test
+    void searchDoctors_invalidWorkingDay_shouldThrowException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                doctorController.searchDoctors(
+                        null, null, null, "FUNDAY", null, null, 0, 10
+                )
+        );
+        assertEquals("Invalid working day: FUNDAY", exception.getMessage());
+    }
+
+    @Test
+    void searchDoctors_invalidStartTime_shouldThrowException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                doctorController.searchDoctors(
+                        null, null, null, null, "invalid-time", null, 0, 10
+                )
+        );
+        assertEquals("Invalid start time format: invalid-time. Expected format: HH:mm", exception.getMessage());
+    }
+
+    @Test
+    void searchDoctors_invalidEndTime_shouldThrowException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                doctorController.searchDoctors(
+                        null, null, null, null, null, "25:61", 0, 10
+                )
+        );
+        assertEquals("Invalid end time format: 25:61. Expected format: HH:mm", exception.getMessage());
     }
 }

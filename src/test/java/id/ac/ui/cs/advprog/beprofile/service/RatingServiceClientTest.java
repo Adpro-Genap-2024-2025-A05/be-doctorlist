@@ -5,7 +5,6 @@ import id.ac.ui.cs.advprog.beprofile.dto.CaregiverRatingStatsDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,19 +35,16 @@ class RatingServiceClientTest {
 
     @BeforeEach
     void setUp() {
-        // point the private @Value field at a fake base URL
         baseUrl = "http://rating.example.com";
         ReflectionTestUtils.setField(client, "ratingServiceBaseUrl", baseUrl);
-
         caregiverId = UUID.randomUUID().toString();
     }
 
     @Test
     void whenRemoteReturnsData_thenReturnsThatData() {
-        // arrange: make a stats DTO
         CaregiverRatingStatsDto stats = CaregiverRatingStatsDto.builder()
                 .averageRating(4.2)
-                .totalReviews(17)
+                .totalRatings(17L)
                 .build();
 
         ApiResponseDto<CaregiverRatingStatsDto> wrapper = new ApiResponseDto<>();
@@ -57,7 +53,6 @@ class RatingServiceClientTest {
         ResponseEntity<ApiResponseDto<CaregiverRatingStatsDto>> respEntity =
                 ResponseEntity.ok(wrapper);
 
-        // stub the RestTemplate.exchange(...) call
         given(restTemplate.exchange(
                 eq(baseUrl + "/rating/caregiver/" + caregiverId + "/stats"),
                 eq(HttpMethod.GET),
@@ -65,10 +60,8 @@ class RatingServiceClientTest {
                 any(ParameterizedTypeReference.class)
         )).willReturn(respEntity);
 
-        // act
         CaregiverRatingStatsDto result = client.getCaregiverRatingStats(caregiverId);
 
-        // assert
         assertThat(result).isSameAs(stats);
         verify(restTemplate).exchange(
                 anyString(), any(HttpMethod.class), isNull(), any(ParameterizedTypeReference.class)
@@ -86,7 +79,7 @@ class RatingServiceClientTest {
         CaregiverRatingStatsDto result = client.getCaregiverRatingStats(caregiverId);
 
         assertThat(result.getAverageRating()).isEqualTo(0.0);
-        assertThat(result.getTotalReviews()).isZero();
+        assertThat(result.getTotalRatings()).isZero();
     }
 
     @Test
@@ -97,6 +90,6 @@ class RatingServiceClientTest {
         CaregiverRatingStatsDto result = client.getCaregiverRatingStats(caregiverId);
 
         assertThat(result.getAverageRating()).isEqualTo(0.0);
-        assertThat(result.getTotalReviews()).isZero();
+        assertThat(result.getTotalRatings()).isZero();
     }
 }

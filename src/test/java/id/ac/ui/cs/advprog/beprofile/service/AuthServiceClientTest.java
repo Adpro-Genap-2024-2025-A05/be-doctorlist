@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.beprofile.service;
 
 import id.ac.ui.cs.advprog.beprofile.dto.ApiResponseDto;
 import id.ac.ui.cs.advprog.beprofile.dto.CaregiverDto;
+import id.ac.ui.cs.advprog.beprofile.enums.Speciality;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -38,7 +39,9 @@ class AuthServiceClientTest {
 
     @Test
     void getAllCaregivers_successfulResponse_returnsList() {
-        CaregiverDto dto = CaregiverDto.builder().id(caregiverId).build();
+        CaregiverDto dto = CaregiverDto.builder()
+                .id(caregiverId)
+                .build();
         ApiResponseDto<List<CaregiverDto>> api = ApiResponseDto.success(200, "ok", List.of(dto));
         ResponseEntity<ApiResponseDto<List<CaregiverDto>>> resp = ResponseEntity.ok(api);
 
@@ -92,7 +95,9 @@ class AuthServiceClientTest {
 
     @Test
     void searchCaregivers_withParams_successfulResponse_returnsList() {
-        CaregiverDto dto = CaregiverDto.builder().id(caregiverId).build();
+        CaregiverDto dto = CaregiverDto.builder()
+                .id(caregiverId)
+                .build();
         ApiResponseDto<List<CaregiverDto>> api = ApiResponseDto.success(200, "ok", List.of(dto));
         ResponseEntity<ApiResponseDto<List<CaregiverDto>>> resp = ResponseEntity.ok(api);
 
@@ -103,7 +108,8 @@ class AuthServiceClientTest {
                 any(ParameterizedTypeReference.class)
         )).thenReturn(resp);
 
-        List<CaregiverDto> result = client.searchCaregivers("Alice", "Spec");
+        // pass enum for speciality
+        List<CaregiverDto> result = client.searchCaregivers("Alice", Speciality.SPESIALIS_ANAK);
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
@@ -134,7 +140,7 @@ class AuthServiceClientTest {
         when(restTemplate.exchange(anyString(), any(), any(), any(ParameterizedTypeReference.class)))
                 .thenReturn(resp);
 
-        List<CaregiverDto> result = client.searchCaregivers("Name", "Spec");
+        List<CaregiverDto> result = client.searchCaregivers("Name", Speciality.SPESIALIS_ANAK);
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
@@ -146,7 +152,7 @@ class AuthServiceClientTest {
 
         RuntimeException ex = assertThrows(
                 RuntimeException.class,
-                () -> client.searchCaregivers("Name", "Spec")
+                () -> client.searchCaregivers("Name", Speciality.SPESIALIS_ANAK)
         );
         assertTrue(ex.getMessage().contains("Failed to search caregivers from auth service"));
     }
@@ -158,7 +164,7 @@ class AuthServiceClientTest {
         ResponseEntity<ApiResponseDto<CaregiverDto>> resp = ResponseEntity.ok(api);
 
         when(restTemplate.exchange(
-                eq(baseUrl + "/data/" + caregiverId),
+                eq(baseUrl + "/data/caregiver/" + caregiverId),
                 eq(HttpMethod.GET),
                 isNull(),
                 any(ParameterizedTypeReference.class)

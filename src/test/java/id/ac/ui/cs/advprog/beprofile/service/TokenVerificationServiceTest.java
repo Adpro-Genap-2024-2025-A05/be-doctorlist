@@ -32,6 +32,15 @@ class TokenVerificationServiceTest {
         assertTrue(true);
     }
 
+    @Test
+    void testGetRemainingTime_WithExpiredToken_ReturnsZero() {
+        String token = generateExpiredToken(Role.CAREGIVER);
+
+        long result = ReflectionTestUtils.invokeMethod(tokenVerificationService, "getRemainingTime", token);
+
+        assertEquals(0, result);
+    }
+
     @BeforeEach
     void setUp() {
         tokenVerificationService = new TokenVerificationService();
@@ -90,6 +99,16 @@ class TokenVerificationServiceTest {
     @Nested
     class VerifyTokenTests {
 
+        @Test
+        void testVerifyToken_ExpiredToken_CatchesExplicitly() {
+            String token = generateExpiredToken(Role.CAREGIVER);
+
+            Exception exception = assertThrows(AuthenticationException.class, () -> {
+                tokenVerificationService.verifyToken(token);
+            });
+
+            assertEquals("Error verifying token: Token has expired", exception.getMessage());
+        }
 
         @Test
         void testVerifyToken_Success() {
