@@ -67,3 +67,38 @@ We use Spring Boot Actuator and Micrometer for application metrics.
       <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
     ```
+
+2. in application-staging.properties
+
+management.endpoints.web.exposure.include=health,info,metrics,prometheus
+management.endpoint.prometheus.enabled=true
+management.metrics.export.prometheus.enabled=true
+
+Usage:
+* Access health: GET /actuator/health
+* Access Prometheus metrics: GET /actuator/prometheus
+
+## Profiling
+
+### Java Flight Recorder (JFR)
+
+Steps:
+
+Run the app with:
+```bash
+java \
+  -XX:+UnlockCommercialFeatures \
+  -XX:+UnlockDiagnosticVMOptions \
+  -XX:+FlightRecorder \
+  -XX:StartFlightRecording=filename=doctor-profile.jfr,settings=profile,duration=5m \
+  -jar target/be-doctorlist.jar
+```
+
+Analyze doctor-profile.jfr in Java Mission Control to view CPU hotspots, memory usage, and thread activity.
+
+### Async Profiler
+1. Download and extract async-profiler.
+
+2. Run:  ./profiler.sh -d 60 -e cpu -f flamegraph.html <PID>
+
+3. Open flamegraph.html in a browser to identify performance hotspots.
