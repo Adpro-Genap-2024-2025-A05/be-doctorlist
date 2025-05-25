@@ -49,3 +49,21 @@ Fitur ini menyediakan kemampuan bagi Pacillians untuk:
 #### 3. **Service Layer Pattern**  
 - **Lokasi Implementasi**: `DoctorSearchService`   
 
+## Monitoring
+
+We use Spring Boot Actuator and Micrometer for application metrics.
+
+### Setup
+
+1. Add to `pom.xml`:
+    
+    ```xml
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+    ```

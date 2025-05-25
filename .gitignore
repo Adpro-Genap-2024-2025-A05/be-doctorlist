@@ -39,3 +39,5 @@ out/
 
 src/test/resources/
 .DS_Store
+
+pom.xml
