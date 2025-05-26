@@ -36,3 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 .env
+
+src/test/resources/
+.DS_Store
